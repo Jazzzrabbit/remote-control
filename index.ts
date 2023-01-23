@@ -13,7 +13,8 @@ enum cmdList {
   UP = 'mouse_up',
   DOWN = 'mouse_down',
   POSITION = 'mouse_position',
-  SQUARE = 'draw_square'
+  SQUARE = 'draw_square',
+  RECTANGLE = 'draw_rectangle',
 };
 
 const wsServer: WebSocket.Server<WebSocket.WebSocket> = new WebSocketServer({ port: WS_PORT });
@@ -65,8 +66,8 @@ wsServer.on('connection', (client: WebSocket.WebSocket, msg: IncomingMessage): v
           break;
         }
         case (cmdList.SQUARE): {
-          console.log(cmdList.SQUARE);
-          stream.write(cmdList.SQUARE);
+          console.log(cmdList.SQUARE, `{ x:${x} }`);
+          stream.write(`${cmdList.SQUARE}_${x}`);
 
           await mouse.pressButton(0);
           await mouse.move(right(x));
@@ -74,7 +75,19 @@ wsServer.on('connection', (client: WebSocket.WebSocket, msg: IncomingMessage): v
           await mouse.move(left(x));
           await mouse.move(up(x));
           await mouse.releaseButton(0);
-          
+          break;
+        }
+
+        case (cmdList.RECTANGLE): {
+          console.log(cmdList.RECTANGLE, `{ x:${x}, y:${y} }`);
+          stream.write(`${cmdList.RECTANGLE}_{x:${x};y:${y}}`);
+
+          await mouse.pressButton(0);
+          await mouse.move(right(x));
+          await mouse.move(down(y));
+          await mouse.move(left(x));
+          await mouse.move(up(y));
+          await mouse.releaseButton(0);
           break;
         }
       };
