@@ -1,5 +1,5 @@
 import { httpServer } from "./src/http_server/index.js";
-import { mouse, Point } from "@nut-tree/nut-js";
+import { down, left, mouse, Point, right, up } from "@nut-tree/nut-js";
 import WebSocket, { WebSocketServer, createWebSocketStream } from "ws";
 import internal from "stream";
 import { IncomingMessage } from "http";
@@ -12,7 +12,8 @@ enum cmdList {
   RIGHT = 'mouse_right',
   UP = 'mouse_up',
   DOWN = 'mouse_down',
-  POSITION = 'mouse_position'
+  POSITION = 'mouse_position',
+  SQUARE = 'draw_square'
 };
 
 const wsServer: WebSocket.Server<WebSocket.WebSocket> = new WebSocketServer({ port: WS_PORT });
@@ -61,6 +62,19 @@ wsServer.on('connection', (client: WebSocket.WebSocket, msg: IncomingMessage): v
         case (cmdList.POSITION): {
           console.log(cmdList.POSITION, scrollPosition);
           stream.write(`${cmdList.POSITION}_{x:${scrollPosition.x};y:${scrollPosition.y}}`);
+          break;
+        }
+        case (cmdList.SQUARE): {
+          console.log(cmdList.SQUARE);
+          stream.write(cmdList.SQUARE);
+
+          await mouse.pressButton(0);
+          await mouse.move(right(x));
+          await mouse.move(down(x));
+          await mouse.move(left(x));
+          await mouse.move(up(x));
+          await mouse.releaseButton(0);
+          
           break;
         }
       };
